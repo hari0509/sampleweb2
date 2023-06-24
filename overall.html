@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ThingSpeak Data Graphs</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    #chartContainer {
+      width: 600px;
+      height: 400px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="chartContainer"></div>
+
+  <script>
+    // Fetch data from ThingSpeak
+    const apiUrl = `https://api.thingspeak.com/channels/2200903/feeds.json?api_key=H75CDT7MOKFCSELY`;
+
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        const xData = data.feeds.map(feed => feed.entry_id);
+
+        // Create chart for Field 1
+        const y1Data = data.feeds.map(feed => parseFloat(feed.field1));
+        const ctx1 = createChart('chart1', 'Field 1', y1Data, 'blue');
+
+        // Create chart for Field 2
+        const y2Data = data.feeds.map(feed => parseFloat(feed.field2));
+        const ctx2 = createChart('chart2', 'Field 2', y2Data, 'red');
+
+        // Create chart for Field 3
+        const y3Data = data.feeds.map(feed => parseFloat(feed.field3));
+        const ctx3 = createChart('chart3', 'Field 3', y3Data, 'green');
+
+        // Create chart for Field 4
+        const y4Data = data.feeds.map(feed => parseFloat(feed.field4));
+        const ctx4 = createChart('chart4', 'Field 4', y4Data, 'orange');
+
+        // Function to create a chart
+        function createChart(chartId, label, data, color) {
+          const canvas = document.createElement('canvas');
+          canvas.id = chartId;
+          document.getElementById('chartContainer').appendChild(canvas);
+
+          const ctx = canvas.getContext('2d');
+          return new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: xData,
+              datasets: [{
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: 'transparent',
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: 'Entry ID',
+                  }
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: 'Value',
+                  }
+                }
+              }
+            }
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching ThingSpeak data:', error);
+      });
+  </script>
+</body>
+</html>
